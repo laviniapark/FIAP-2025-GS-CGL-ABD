@@ -150,7 +150,7 @@ Copie a API Key e cole dentro do arquivo `appsettings.json`:
 "GeminiAPIKey": "[API_KEY]"
 ```
 
-### 🧠 **3. Executando o Projeto (CLI Mode)**
+### 🧠 **4. Executando o Projeto (CLI Mode)**
 
 > 🖥️ Execute os comandos abaixo na raiz do projeto:
 
