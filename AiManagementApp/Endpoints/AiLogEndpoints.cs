@@ -16,8 +16,11 @@ public static class AiLogEndpoints
             .WithTags("AI Log Endpoints");
 
         // GET ALL
-        group.MapGet("", async ([AsParameters] PageParameters pageParam, AiManagementAppDb db, LinkGenerator lg, HttpContext http) =>
+        group.MapGet("", async ([AsParameters] PageParameters pageParam, AiManagementAppDb db, LinkGenerator lg, HttpContext http, ILogger<AiLog> logger) =>
         {
+            logger.LogInformation("Listando logs: page={Page}, size={Size}",
+            pageParam.PageNumber, pageParam.PageSize);
+            
             var page = pageParam.PageNumber < 1 ? 1 : pageParam.PageNumber;
             var size =  pageParam.PageSize is < 1 or > 100 ? 20 :  pageParam.PageSize;
 
@@ -72,14 +75,17 @@ public static class AiLogEndpoints
         group.MapGet("/{id:guid}",
             async
                 (AiManagementAppDb db, [Description("Identificador unico do log")] Guid id, LinkGenerator lg,
-                    HttpContext http) =>
+                    HttpContext http, ILogger<AiLog> logger) =>
                 {
+                    logger.LogInformation("Buscando log por ID={Id}", id);
+                    
                     var log = await db.AiLogs
                         .AsNoTracking()
                         .SingleOrDefaultAsync(l => l.Id == id);
 
                     if (log is null)
                     {
+                        logger.LogWarning("Log {id} nao encontrado", id);
                         return Results.NotFound(new { message = "Registro de log não encontrado", id });   
                     }
                     
@@ -109,25 +115,29 @@ public static class AiLogEndpoints
             .Produces(StatusCodes.Status404NotFound);
         
         // POST
-        group.MapPost("", async (AiManagementAppDb db, AiLogRequest req) =>
+        group.MapPost("", async (AiManagementAppDb db, AiLogRequest req, ILogger<AiLog> logger) =>
         {
             if (req.DHRequisicao > DateTime.UtcNow.AddMinutes(5))
             {
+                logger.LogWarning("Data futura recebida no POST /ai-logs: {Data}", req.DHRequisicao);
                 return Results.BadRequest(new { message = "DHRequisicao não pode ser no futuro." });
             }
 
             if (string.IsNullOrWhiteSpace(req.ResumoRecebido))
             {
+                logger.LogWarning("ResumoRecebido recebido sem dados: {ResumoRecebido}", req.ResumoRecebido);
                 return Results.BadRequest(new { message = "ResumoRecebido é obrigatório." });
             }
 
             if (string.IsNullOrWhiteSpace(req.RecomendacaoGerada))
             {
+                logger.LogWarning("RecomendacaoGerada recebido sem dados: {RecomendacaoGerada}", req.RecomendacaoGerada);
                 return Results.BadRequest(new { message = "RecomendacaoGerada é obrigatória." });   
             }
             
             if (!Enum.IsDefined(typeof(AiLog.NivelRisco), req.Nivel))
             {
+                logger.LogWarning("Nível inexistente recebido: {Nivel}", req.Nivel);
                 return Results.BadRequest(new { message = "Nível inválido. Insira 0 para Leve ou 1 para Moderado." });
             }
             
@@ -143,6 +153,8 @@ public static class AiLogEndpoints
 
             db.AiLogs.Add(log);
             await db.SaveChangesAsync();
+            
+            logger.LogInformation("Log criado com sucesso! ID={Id}", log.Id);
 
             var response = new AiLogResponse(
                 log.Id,
@@ -166,12 +178,13 @@ public static class AiLogEndpoints
         group.MapPut("/{id:guid}",
             async
                 ([Description("Identificador único do registro")] Guid id, AiLogRequest req, AiManagementAppDb db,
-                    LinkGenerator lg, HttpContext http) =>
+                    LinkGenerator lg, HttpContext http, ILogger<AiLog> logger) =>
                 {
                     var log = await db.AiLogs.FirstOrDefaultAsync(l => l.Id == id);
 
                     if (log is null)
                     {
+                        logger.LogWarning("Log {Id} não encontrado", id);
                         return Results.NotFound(new { message = "Registro não encontrado", id });
                     }
 
@@ -190,6 +203,8 @@ public static class AiLogEndpoints
 
                     await db.SaveChangesAsync();
 
+                    logger.LogInformation("Log atualizado com sucesso! ID={Id}", id);
+                    
                     var response = new
                     {
                         message = "Registro atualizado com sucesso!",
@@ -215,18 +230,21 @@ public static class AiLogEndpoints
         
         // DELETE
         group.MapDelete("/{id:guid}",
-            async ([Description("Identificador único do registro")] Guid id, AiManagementAppDb db) =>
+            async ([Description("Identificador único do registro")] Guid id, AiManagementAppDb db, ILogger<AiLog> logger) =>
             {
                 
                 var log = await db.AiLogs.FindAsync(id);
 
                 if (log is null)
                 {
+                    logger.LogWarning("Log {Id} não encontrado", id);
                     return Results.NotFound(new { message = "Registro não encontrado", id});   
                 }
                 
                 db.AiLogs.Remove(log);
                 await db.SaveChangesAsync();
+                
+                logger.LogInformation("Log deletado com sucesso! ID={Id}", id);
                 
                 return Results.Ok(new { message = "Registro deletado com sucesso!"});
             }).WithName("DeleteLog")

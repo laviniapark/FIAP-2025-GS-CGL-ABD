@@ -8,6 +8,9 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 builder.Services.RegisterAiManagementAppServices(
     builder.Configuration,
     builder.Environment);
