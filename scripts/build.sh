@@ -29,7 +29,7 @@ az webapp create \
   --name $WEBAPP_NAME \
   --resource-group "$RG" \
   --plan "$APP_SERVICE_PLAN" \
-  --runtime "dotnet|9"
+  --runtime "DOTNETCORE:9.0"
   
 # cd FIAP-2025-GS-CGL-ABD/AiManagementApp
 
@@ -41,8 +41,4 @@ az webapp create \
 
 # cd ..
 
-#az webapp deploy \
-#  --name $WEBAPP_NAME \
-#  --resource-group "$RG" \
-# --src-path "deploy.zip" \
-#  --type zip
+#az webapp deploy --name "cglgs2025webapp" --resource-group "rg-gs2025-cgl" --src-path "deploy.zip" --type zip

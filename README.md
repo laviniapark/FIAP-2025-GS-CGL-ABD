@@ -162,7 +162,7 @@ dotnet restore
  dotnet ef database update --project AiManagementApp
 
 # 3. Iniciar o servidor
-dotnet run --project AiManagementApp
+dotnet run --environment Development --project AiManagementApp
 ```
 
 > 🔗 **URL gerada:** copie a exibida no console (exemplo: `http://localhost:5107`)
