@@ -31,6 +31,12 @@ az webapp create \
   --plan "$APP_SERVICE_PLAN" \
   --runtime "DOTNETCORE:9.0"
   
+az webapp config appsettings set \
+  --name "$WEBAPP_NAME" \
+  --resource-group "$RG" \
+  --settings \
+   HEALTH_URL="cglgs2025webapp.azurewebsites.net/health"
+  
 # cd FIAP-2025-GS-CGL-ABD/AiManagementApp
 
 # dotnet publish -c Release -o ./publish
