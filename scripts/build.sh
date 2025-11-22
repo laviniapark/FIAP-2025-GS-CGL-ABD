@@ -36,7 +36,7 @@ az webapp config appsettings set \
   --resource-group "$RG" \
   --settings \
    HEALTH_URL="cglgs2025webapp.azurewebsites.net/health"
-  
+   
 # cd FIAP-2025-GS-CGL-ABD/AiManagementApp
 
 # dotnet publish -c Release -o ./publish
