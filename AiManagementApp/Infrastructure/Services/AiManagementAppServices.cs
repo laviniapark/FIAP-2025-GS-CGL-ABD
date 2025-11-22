@@ -101,7 +101,14 @@ public static class AiManagementAppServices
                 tags:new[]{"oracle","database"}
             );
         
-        services.AddHealthChecksUI().AddInMemoryStorage();
+
+        var baseUrl = configuration["HEALTH_URL"] ?? "http://localhost:5107/health";
+        
+        services.AddHealthChecksUI(options =>
+        {
+            options.AddHealthCheckEndpoint("API", baseUrl);
+        }
+            ).AddInMemoryStorage();
         
         #endregion
 
