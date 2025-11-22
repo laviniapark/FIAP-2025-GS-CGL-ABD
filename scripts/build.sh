@@ -29,7 +29,7 @@ az webapp create \
   --name $WEBAPP_NAME \
   --resource-group "$RG" \
   --plan "$APP_SERVICE_PLAN" \
-  --runtime "DOTNET|9.0"
+  --runtime "dotnet|9"
   
 # cd FIAP-2025-GS-CGL-ABD/AiManagementApp
 
