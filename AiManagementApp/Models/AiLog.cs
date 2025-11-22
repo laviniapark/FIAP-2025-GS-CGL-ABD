@@ -26,6 +26,7 @@ namespace AiManagementApp.Models;
         public enum NivelRisco
         {
             Leve = 0,
-            Moderado = 1
+            Moderado = 1,
+            Grave = 2
         }
     }

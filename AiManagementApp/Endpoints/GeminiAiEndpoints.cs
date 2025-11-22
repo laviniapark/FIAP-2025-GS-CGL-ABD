@@ -17,21 +17,24 @@ namespace AiManagementApp.Endpoints ;
             // Depois registra o historico no banco, independente de sucesso ou erro
             group.MapPost("/solicitar", async (IAiService ai, AiManagementAppDb db, [FromBody] AiLogRequestJava req, ILogger<AiLog> logger) =>
             {
-                logger.LogInformation("Requisição recebida! Resumo: {ResumoRecebido} | Nível: {Nivel}", req.ResumoRecebido, req.Nivel);
+                logger.LogInformation("Requisição recebida! Resumo: {ResumoRecebido} | Nível: {Nivel} | Prioridade: {Prioridade}", req.ResumoRecebido, req.Nivel, req.Prioridade);
 
-                string textoGerado = "";
+                AIResponse? respostaIA = null;
                 bool sucesso = false;
 
                 try
                 {
-                    textoGerado = await ai.GerarRecomendacaoAsync(req.ResumoRecebido, req.Nivel);
+                    respostaIA = await ai.GerarRecomendacaoAsync(req.ResumoRecebido, req.Nivel);
                     sucesso = true;
                 }
                 catch (Exception ex)
                 {
                     logger.LogError("Erro ao gerar recomendação da IA");
-                    textoGerado =
-                        "Não consegui gerar uma recomendação agora, mas tente respirar fundo e fazer uma pausa curta.";
+                    respostaIA = new AIResponse(
+                        mensagem: "Estou com dificuldades para responder agora, mas que tal respirar fundo e tomar um copo d'água? Cuidar de você continua sendo importante, mesmo nos momentos de pausa.",
+                        orientacao: "Faça três respirações lentas e conscientes. Se estiver difícil enfrentar sozinho(a), conversar com alguém de confiança pode ajudar.",
+                        recursosSugeridos: "Pausa breve, grounding, hidratação"
+                        );
                 }
 
                 var log = new AiLog
@@ -39,7 +42,7 @@ namespace AiManagementApp.Endpoints ;
                     Id = Guid.NewGuid(),
                     DHRequisicao = DateTime.Now,
                     ResumoRecebido = req.ResumoRecebido,
-                    RecomendacaoGerada = textoGerado,
+                    RecomendacaoGerada = respostaIA.mensagem,
                     Nivel = req.Nivel,
                     SucessoEnvio = sucesso
                 };
@@ -49,7 +52,13 @@ namespace AiManagementApp.Endpoints ;
                 
                 logger.LogInformation("Log salvo com sucesso! ID: {Id}", log.Id);
                 
-                return Results.Ok(new { recomendacao = textoGerado, id = log.Id });
+                return Results.Ok(new
+                {
+                    mensagem = respostaIA.mensagem, 
+                    orientacao = respostaIA.orientacao,
+                    recursosSugeridos = respostaIA.recursosSugeridos, 
+                    sucessoProcessamento = log.SucessoEnvio
+                });
             }).WithName("PostAi")
                 .WithSummary("Recebe os dados de Java e envia pra IA")
                 .WithDescription("Esse método irá receber os dados de Java, e irão enviá-los para a IA gerar a resposta. " +
@@ -60,12 +69,12 @@ namespace AiManagementApp.Endpoints ;
             // também salvando o resultado no banco para manter histórico
             group.MapGet("/teste", async (IAiService ai, AiManagementAppDb db, ILogger<AiLog> logger) =>
             {
-                string textoGerado = "";
+                AIResponse? respostaIA = null;
                 bool sucesso = false;
 
                 try
                 {
-                    textoGerado = await ai.GerarRecomendacaoAsync(
+                    respostaIA = await ai.GerarRecomendacaoAsync(
                         "Estou meio cansada hoje",
                         AiLog.NivelRisco.Leve
                         );
@@ -76,8 +85,11 @@ namespace AiManagementApp.Endpoints ;
                 {
                     logger.LogError(ex, "Erro ao testar IA");
 
-                    textoGerado =
-                        "Não consegui testar a recomendação agora, mas tente respirar fundo e fazer uma pausa curta.";
+                    respostaIA = new AIResponse(
+                        mensagem: "Não consegui testar agora, mas tente respirar fundo e fazer uma pausa leve.",
+                        orientacao: "Três respirações lentas podem ajudar a aliviar o cansaço.",
+                        recursosSugeridos: "Pausa breve, hidratação"
+                        );
                 }
 
                 var log = new AiLog
@@ -85,7 +97,7 @@ namespace AiManagementApp.Endpoints ;
                     Id = Guid.NewGuid(),
                     DHRequisicao = DateTime.Now,
                     ResumoRecebido = "Teste automático da IA",
-                    RecomendacaoGerada = textoGerado,
+                    RecomendacaoGerada = respostaIA.mensagem,
                     Nivel = AiLog.NivelRisco.Leve,
                     SucessoEnvio = sucesso
                 };
@@ -95,7 +107,13 @@ namespace AiManagementApp.Endpoints ;
 
                 logger.LogInformation("Log do teste salvo com sucesso no banco! ID = {Id}", log.Id);
                 
-                return Results.Ok(new { recomendacao = textoGerado, sucesso });
+                return Results.Ok(new
+                {
+                    mensagem = respostaIA.mensagem, 
+                    orientacao = respostaIA.orientacao,
+                    recursosSugeridos = respostaIA.recursosSugeridos, 
+                    sucessoProcessamento = log.SucessoEnvio
+                });
             })
                 .WithName("GetAi")
                 .WithSummary("Método para teste local da IA")

@@ -1,4 +1,5 @@
 using AiManagementApp.Models;
+using AiManagementApp.Models.DTOs;
 
 namespace AiManagementApp.Infrastructure.Services;
 
@@ -10,5 +11,5 @@ public interface IAiService
     /// <param name="resumo">Resumo enviado pelo usuário (vindo do Java).</param>
     /// <param name="nivel">Nível de risco (leve ou moderado).</param>
     /// <returns>Texto de recomendação gerado pela IA.</returns>
-    Task<string> GerarRecomendacaoAsync(string resumo, AiLog.NivelRisco nivel);
+    Task<AIResponse> GerarRecomendacaoAsync(string resumo, AiLog.NivelRisco nivel);
 }

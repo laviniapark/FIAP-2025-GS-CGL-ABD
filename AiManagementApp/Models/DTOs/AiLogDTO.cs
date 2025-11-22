@@ -1,8 +1,14 @@
+using System.Text.Json.Serialization;
+
 namespace AiManagementApp.Models.DTOs;
 
 public record AiLogRequestJava(
+   [property: JsonPropertyName("ResumoRecebido")]
     string ResumoRecebido,
-    AiLog.NivelRisco Nivel
+    [property: JsonPropertyName("Nivel")]
+    AiLog.NivelRisco Nivel,
+    [property: JsonPropertyName("Prioridade")]
+    bool Prioridade
     );
 
 public record AiLogRequest(

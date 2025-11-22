@@ -22,12 +22,17 @@ namespace AiManagementApp.Tests ;
             var json = await response.Content.ReadFromJsonAsync<TestResponse>();
     
             Assert.NotNull(json);
-            Assert.False(string.IsNullOrWhiteSpace(json.recomendacao));
+            Assert.True(json.sucessoProcessamento);
+            Assert.False(string.IsNullOrWhiteSpace(json.mensagem));
+            Assert.False(string.IsNullOrWhiteSpace(json.orientacao));
+            Assert.False(string.IsNullOrWhiteSpace(json.recursosSugeridos));
         }
     }
     
     public class TestResponse
     {
-        public string recomendacao { get; set; }
-        public bool sucesso { get; set; }
+        public string mensagem { get; set; }
+        public string orientacao { get; set; }
+        public string recursosSugeridos { get; set; }
+        public bool sucessoProcessamento { get; set; }
     }
