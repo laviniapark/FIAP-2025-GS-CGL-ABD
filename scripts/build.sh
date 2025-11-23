@@ -36,11 +36,7 @@ az webapp config appsettings set \
   --resource-group "$RG" \
   --settings \
    HEALTH_URL="cglgs2025webapp.azurewebsites.net/health" \
-   API_KEY="" \
-   ORACLE_URL="" \
-   ORACLE_HOST="" \
-   ORACLE_USER="" \
-   ORACLE_PASSWORD=""
+   API_KEY=""
    
 # cd FIAP-2025-GS-CGL-ABD/AiManagementApp
 
