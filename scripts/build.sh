@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOCATION="eastus"
+LOCATION="eastus2"
 RG="rg-gs2025-cgl"
 APP_SERVICE_PLAN="plan-gs2025-cgl"
 WEBAPP_NAME="cglgs2025webapp"
@@ -35,7 +35,12 @@ az webapp config appsettings set \
   --name "$WEBAPP_NAME" \
   --resource-group "$RG" \
   --settings \
-   HEALTH_URL="cglgs2025webapp.azurewebsites.net/health"
+   HEALTH_URL="cglgs2025webapp.azurewebsites.net/health" \
+   API_KEY="" \
+   ORACLE_URL="" \
+   ORACLE_HOST="" \
+   ORACLE_USER="" \
+   ORACLE_PASSWORD=""
    
 # cd FIAP-2025-GS-CGL-ABD/AiManagementApp
 
