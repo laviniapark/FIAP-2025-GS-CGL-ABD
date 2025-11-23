@@ -13,8 +13,8 @@ public class GeminiAiService : IAiService
     // Atrela a API Key gerada ao modelo da AI, criando um novo cliente para ser utilizado
     public GeminiAiService(IConfiguration config)
     {
-        var apiKey = config["GeminiAPIKey"]
-            ?? throw new InvalidOperationException("GeminiAPIKey não configurada");
+        var apiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY")
+                     ?? throw new InvalidOperationException("GEMINI_API_KEY não configurada");
         
         Environment.SetEnvironmentVariable("GOOGLE_API_KEY", apiKey);
 

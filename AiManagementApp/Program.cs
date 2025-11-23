@@ -17,6 +17,8 @@ builder.Services.RegisterAiManagementAppServices(
 
 builder.Services.AddOpenApi();
 
+builder.Configuration.AddEnvironmentVariables();
+
 var app = builder.Build();
 
 var apiVersionSet = app.NewApiVersionSet()
