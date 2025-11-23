@@ -14,115 +14,6 @@ Este serviço foi desenvolvido para ser leve, escalável e facilmente integráve
 - [Integrantes](#integrantes)
 - [Justificativa da Arquitetura](#justificativa-da-arquitetura)
 - [Funcionalidades](#funcionalidades)
-- [Como Rodar o projeto](#como-rodar-o-projeto)
-- [Efetuando Testes no Sistema](#efetuando-testes-no-sistema)
-
-## Integrantes
-| Turma |    RM    |     Nome Completo     |
-|:------|:--------:|:---------------------:|
-| 2TDSB | RM559123 | Caroline de Oliveira  |
-| 2TDSB | RM554473 | Giulia Corrêa Camillo |
-| 2TDSB | RM555679 | Lavinia Soo Hyun Park |
-
-## Justificativa da Arquitetura
-
-A aplicação Lyra AI Management foi construída utilizando uma estrutura inspirada na Clean Architecture, priorizando baixo acoplamento, alta coesão e separação clara de responsabilidades.
-
-O objetivo principal é garantir que os serviços de IA, registro de logs e comunicação com sistemas externos possam evoluir de forma independente, mantendo simplicidade e escalabilidade.
-
-A solução foi organizada nas seguintes camadas:
-
-### 🔹 API Layer (Endpoints/)
-Responsável por expor os endpoints HTTP, agrupados por recurso (IA, Logs, Health, etc.).
-
-Nessa camada ficam as:
-- Validações básicas de entrada
-- Rotas divididas por versão (v1, v2)
-- Composição das respostas (incluindo Paginaçao e HATEOAS nas respostas)
-
-### 🔹 Domain Layer (Models/)
-Define as entidades principais do serviço:
-- AiLog
-- DTOs de entrada e saída
-- Estruturas simples utilizadas para transporte e padronização dos dados
-
-Essa camada não depende de infraestrutura e mantém apenas regras mínimas de consistência.
-
-### 🔹 Infrastructure Layer (Infrastructure/)
-Centraliza tudo que é externo ou de baixo nível:
-- Configurações do Entity Framework Core
-- Connection string e injeção de dependência do DbContext
-- Paginação, HATEOAS e utilitários auxiliares
-- Configuração de health checks, versionamento e Scalar
-- Configurações de integrações externas, como OpenTelemetry e o serviço de IA (Gemini)
-
-Essa camada mantém o `Program.cs` limpo e organizado, delegando responsabilidades.
-
-### 🔹 Test Layer (Tests/)
-Projeto separado utilizando xUnit + WebApplicationFactory, garantindo:
-- Testes reais dos endpoints
-- Validação do fluxo da IA
-- Verificação da estrutura JSON retornada
-
-> 🔍 Observação Importante
-> A aplicação adota um design minimalista, apropriado para serviços de backend que fazem mediação entre sistemas.
->
-> Validações e regras simples são tratadas diretamente nos endpoints, enquanto a infraestrutura concentra capacidades transversais como logs, versionamento e documentação.
-> 
-> Essa estrutura reduz complexidade, evita sobrecarga desnecessária e mantém o sistema fácil de evoluir.
-
-O diagrama abaixo complementa essa estrutura, apresentando como a API .NET se integra ao fluxo completo da solução e interage com o backend Java, o serviço de IA e o banco de dados:
-
-![Diagrama](/docs/images/diagrama-dotnet.png)
-
-## Funcionalidades
-
-### 🔹 1. Endpoint de IA
-- Recebe resumo enviado pelo backend Java
-- Consulta o modelo Gemini (```/api/v1/ai/solicitar```)
-- Gera recomendação personalizada
-- Devolve resposta em JSON para o Java
-### 🔹 2. Registro de Logs (AI Logs)
-- Salva o histórico no Oracle (resumo, recomendação, nível, sucesso)
-- Auditoria completa de cada chamada
-- Suporte a paginação
-- HATEOAS para navegação entre páginas
-### 🔹 3. Versionamento de API
-- Suporte às versões v1 e v2
-- A v2 foi mantida para futuras melhorias e compatibilidade
-- Permite evoluir sem quebrar integrações
-### 🔹 4. Health Checks
-- Verifica conexão com o Oracle
-- Atualiza seu estado a cada 60 segundos
-- Interface visual via HealthChecks UI (```/health-ui```)
-### 🔹 5. Scalar
-- Endpoints documentados automaticamente via Scalar
-- Inclui exemplos de requisição e resposta
-- Exibe tipos de retorno, parâmetros e detalhes adicionais de cada método
-### 🔹 6. Logging & Tracing
-- Uso do ILogger para registrar eventos importantes durante o fluxo das requisições
-- Integração com OpenTelemetry, permitindo rastreamento detalhado e visibilidade do comportamento da aplicação
-
-## Deploy da API
-
-# Lyra AI Management App
-
-<p align="center">
-  <img src="/docs/images/Logo-Com-Nome.png" width="200"/>
-</p>
-
-📌 *Nota: Projeto desenvolvido para fins acadêmicos na disciplina de Advanced Business Development with .NET*
-
-O Lyra AI Management é o serviço em .NET 9 Minimal API responsável por **gerenciar a comunicação com a camada de Inteligência Artificial** utilizada pelo aplicativo móvel Lyra.
-
-Ele centraliza o recebimento dos resumos enviados pelo backend Java, consulta o modelo de IA para gerar recomendações ao usuário e registra todos os eventos em banco de dados para posterior análise.
-
-Este serviço foi desenvolvido para ser leve, escalável e facilmente integrável, permitindo que outras aplicações consumam as funcionalidades da IA de forma simples e organizada.
-
-## Índice
-- [Integrantes](#integrantes)
-- [Justificativa da Arquitetura](#justificativa-da-arquitetura)
-- [Funcionalidades](#funcionalidades)
 - [Deploy da API](#deploy-da-api)
 - [Como Rodar o projeto](#como-rodar-o-projeto)
 - [Efetuando Testes no Sistema](#efetuando-testes-no-sistema)
@@ -222,12 +113,25 @@ A aplicação foi deployada com sucesso na Azure App Service e está disponível
 | WebApp (.NET)          |    https://cglgs2025webapp.azurewebsites.net    |
 | Health Simples (ativo) |https://cglgs2025webapp.azurewebsites.net/health |
 
-> Caso queira subir a aplicação manualmente no Azure Portal via CLI, acesse a pasta scripts e siga o passo a passo descrito no arquivo
+✔ Para testar manualmente, use a URL acima e adicione o path desejado — conforme descrito no tópico **“Efetuando Testes no Sistema”**.
 
-📌 Nota:
-O deploy foi utilizado para demonstrar a viabilidade real de hospedagem da API e sua capacidade de integração com o backend Java.
+---
 
-Todos os testes funcionais do sistema — incluindo IA, Oracle e testes unitários — foram executados em ambiente local, garantindo controle total das dependências.
+### 📂 Scripts de Deploy (Azure CLI)
+
+O processo de deploy está documentado na pasta:
+
+```📁 /scripts```
+
+---
+
+### 📌 Observações Importantes
+
+- O deploy comprova a **integração real com o backend Java**, permitindo a comunicação direta com a API de IA.
+- Os demais testes — **Scalar, Health-UI, Oracle e testes unitários** — foram executados em ambiente local, garantindo controle das dependências.
+- Esse deploy valida especialmente os conteúdos de:
+    - **Integração Java ⇄ .NET**
+    - **DevOps / CLI / Deploy**
 
 ## Como Rodar o Projeto
 
